@@ -1,7 +1,9 @@
 package es.iessaladillo.pedrojoya.pr04.ui.main;
 
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -14,12 +16,14 @@ import android.widget.TextView;
 
 import com.google.android.material.snackbar.Snackbar;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import es.iessaladillo.pedrojoya.pr04.R;
 import es.iessaladillo.pedrojoya.pr04.data.local.Database;
 import es.iessaladillo.pedrojoya.pr04.data.local.model.Avatar;
+import es.iessaladillo.pedrojoya.pr04.ui.avatar.AvatarActivity;
 import es.iessaladillo.pedrojoya.pr04.utils.KeyboardUtils;
 import es.iessaladillo.pedrojoya.pr04.utils.ValidationUtils;
 
@@ -44,11 +48,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ImageView imgAddress;
     private ConstraintLayout constraitLayout;
 
+    private static final int RC_AVATAR = 1;
+    private Avatar avatar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initViews();
+
         // TODO
     }
 
@@ -76,10 +84,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Snackbar.make(constraitLayout, R.string.main_saved_succesfully, Snackbar.LENGTH_LONG).show();
         }
         KeyboardUtils.hideSoftKeyboard(this);
-        // TODO
     }
 
     private void initViews() {
+
         imgAvatar = ActivityCompat.requireViewById(this, R.id.imgAvatar);
         lblAvatar = ActivityCompat.requireViewById(this, R.id.lblAvatar);
         txtName = ActivityCompat.requireViewById(this, R.id.txtName);
@@ -97,6 +105,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         imgWeb = ActivityCompat.requireViewById(this, R.id.imgWeb);
         imgAddress = ActivityCompat.requireViewById(this, R.id.imgAddress);
         constraitLayout = ActivityCompat.requireViewById(this, R.id.clRoot);
+
+        imgAvatar.setImageResource(database.getDefaultAvatar().getImageResId());
 
         imgAvatar.setOnClickListener(this);
         lblAvatar.setOnClickListener(this);
@@ -125,6 +135,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             save();
             return false;
         });
+
+        /*imgEmail.setOnClickListener();*/
     }
 
 
@@ -138,19 +150,38 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
-        if (v.getId() == imgAvatar.getId() || v.getId() == lblAvatar.getId()) {
-            changeImageAvatar();
+        AvatarActivity.startForResult(MainActivity.this, RC_AVATAR, database.getRandomAvatar());
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (resultCode == RESULT_OK && requestCode == RC_AVATAR) {
+            obtainResponseData(data);
         }
     }
 
-    private void changeImageAvatar() {
+    private void obtainResponseData(Intent intent) {
+        if (intent != null && intent.hasExtra(AvatarActivity.EXTRA_AVATAR)) {
+            avatar = intent.getParcelableExtra(AvatarActivity.EXTRA_AVATAR);
+        }
+        showAvatar();
+    }
+
+    private void showAvatar() {
+        imgAvatar.setImageResource(avatar.getImageResId());
+        lblAvatar.setText(avatar.getName());
+    }
+
+    /*private void changeImageAvatar() {
         Avatar avatarRandom = database.getRandomAvatar();
         imgAvatar.setImageResource(avatarRandom.getImageResId());
         lblAvatar.setText(avatarRandom.getName());
 
         imgAvatar.setTag(avatarRandom.getImageResId());
         lblAvatar.setTag(avatarRandom.getName());
-    }
+    }*/
+
+
 
     private class GestorTextWatcher implements TextWatcher {
         @Override
@@ -201,8 +232,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void checkWeb() {
-        if (!ValidationUtils.isValidUrl(txtWeb.getText().toString())
-                || TextUtils.isEmpty(txtWeb.getText().toString())) {
+        if (!ValidationUtils.isValidUrl(txtWeb.getText().toString())) {
             disabledFieldImg(txtWeb, imgWeb, lblWeb);
         } else {
             enabledFieldImg(txtWeb, imgWeb, lblWeb);
@@ -246,22 +276,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private boolean isValidName(String name) {
         return TextUtils.isEmpty(name);
-
-        /* Es lo mismo que arriba pero simplicado
-        if(TextUtils.isEmpty(name)) {
-            return true;
-        }
-        return false;*/
     }
 
     private boolean isValidAddress(String address) {
         return TextUtils.isEmpty(address);
-
-        /* Es lo mismo que arriba pero simplificado
-        if (TextUtils.isEmpty(address)) {
-            return true;
-        }
-        return false;*/
     }
 
     private void disabledFieldImg(EditText editText, ImageView imageView, TextView textView) {
