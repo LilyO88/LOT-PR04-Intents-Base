@@ -31,6 +31,7 @@ public class AvatarActivity extends AppCompatActivity {
     private TextView lblAvatar4;
     private TextView lblAvatar5;
     private TextView lblAvatar6;
+    private final Database database = Database.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +39,7 @@ public class AvatarActivity extends AppCompatActivity {
         setContentView(R.layout.activity_avatar);
         obtainData(getIntent());
         initViews();
+        setTransparent();
     }
 
     private void initViews() {
@@ -55,12 +57,9 @@ public class AvatarActivity extends AppCompatActivity {
         lblAvatar6 = ActivityCompat.requireViewById(this, R.id.lblAvatar6);
 
         /*onClickListener*/
-        View.OnClickListener clickListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                buildResult(v);
-                finish();
-            }
+        View.OnClickListener clickListener = v -> {
+            buildResult(v);
+            finish();
         };
 
         imgAvatar1.setOnClickListener(clickListener);
@@ -75,6 +74,7 @@ public class AvatarActivity extends AppCompatActivity {
         lblAvatar4.setOnClickListener(clickListener);
         lblAvatar5.setOnClickListener(clickListener);
         lblAvatar6.setOnClickListener(clickListener);
+
     }
 
     private void buildResult(View v) {
@@ -82,6 +82,22 @@ public class AvatarActivity extends AppCompatActivity {
         Intent intent = new Intent();
         intent.putExtra(EXTRA_AVATAR, avatar);
         this.setResult(RESULT_OK, intent);
+    }
+
+    private void setTransparent() {
+        if (avatar.getImageResId() == database.queryAvatar(1).getImageResId()) {
+            selectImageView(imgAvatar1);
+        } else if (avatar.getImageResId() == database.queryAvatar(2).getImageResId()) {
+            selectImageView(imgAvatar2);
+        } else if (avatar.getImageResId() == database.queryAvatar(3).getImageResId()) {
+            selectImageView(imgAvatar3);
+        } else if (avatar.getImageResId() == database.queryAvatar(4).getImageResId()) {
+            selectImageView(imgAvatar4);
+        } else if (avatar.getImageResId() == database.queryAvatar(5).getImageResId()) {
+            selectImageView(imgAvatar5);
+        } else if (avatar.getImageResId() == database.queryAvatar(6).getImageResId()) {
+            selectImageView(imgAvatar6);
+        }
     }
 
     private void setAvatar(View v) {
@@ -125,11 +141,9 @@ public class AvatarActivity extends AppCompatActivity {
             case R.id.lblAvatar6:
                 num = 6;
                 break;
-
         }
         avatar = database.queryAvatar(num);
     }
-
 
     private void obtainData(Intent intent) {
         if (intent != null && intent.hasExtra(EXTRA_AVATAR)) {

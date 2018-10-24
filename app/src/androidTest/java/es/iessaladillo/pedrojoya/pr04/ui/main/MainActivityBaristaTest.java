@@ -152,24 +152,28 @@ public class MainActivityBaristaTest {
 
     @Test
     public void shouldEmailIconBeDisabledWhenInvalidData() {
+        clickOn(R.id.txtEmail);
         writeTo(R.id.txtEmail, "test");
         assertDisabled(R.id.imgEmail);
     }
 
     @Test
     public void shouldPhonenumberIconBeDisabledWhenInvalidData() {
+        clickOn(R.id.txtPhonenumber);
         writeTo(R.id.txtPhonenumber, "1");
         assertDisabled(R.id.imgPhonenumber);
     }
 
     @Test
     public void shouldAddressIconBeDisabledWhenInvalidData() {
+        clickOn(R.id.txtAddress);
         writeTo(R.id.txtAddress, "");
         assertDisabled(R.id.imgAddress);
     }
 
     @Test
     public void shouldWebIconBeDisabledWhenInvalidData() {
+        clickOn(R.id.txtWeb);
         writeTo(R.id.txtWeb, "test");
         assertDisabled(R.id.imgWeb);
     }

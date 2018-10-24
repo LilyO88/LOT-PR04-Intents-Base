@@ -2,8 +2,8 @@ package es.iessaladillo.pedrojoya.pr04.ui.main;
 
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -107,6 +107,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         constraitLayout = ActivityCompat.requireViewById(this, R.id.clRoot);
 
         imgAvatar.setImageResource(database.getDefaultAvatar().getImageResId());
+        avatar = database.queryAvatar(1);
 
         imgAvatar.setOnClickListener(this);
         lblAvatar.setOnClickListener(this);
@@ -136,9 +137,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             return false;
         });
 
-        /*imgEmail.setOnClickListener();*/
+        View.OnClickListener imgListener = this::sendIntent;
+
+        imgEmail.setOnClickListener(imgListener);
+        imgPhonenumber.setOnClickListener(imgListener);
+        imgAddress.setOnClickListener(imgListener);
+        imgWeb.setOnClickListener(imgListener);
+
     }
 
+    private void sendIntent(View v) {
+            if (v.getId() == imgEmail.getId()) {
+                sendEmail();
+            } else if (v.getId() == imgPhonenumber.getId()) {
+                callPhone();
+            } else if (v.getId() == imgAddress.getId()) {
+                searchAddress();
+            } else if (v.getId() == imgWeb.getId()) {
+                viewWeb();
+            }
+    }
 
     private void setBold(EditText editText, TextView label) {
         if(editText.hasFocus()) {
@@ -150,7 +168,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
-        AvatarActivity.startForResult(MainActivity.this, RC_AVATAR, database.getRandomAvatar());
+        AvatarActivity.startForResult(MainActivity.this, RC_AVATAR, avatar);
     }
 
     @Override
@@ -164,12 +182,42 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (intent != null && intent.hasExtra(AvatarActivity.EXTRA_AVATAR)) {
             avatar = intent.getParcelableExtra(AvatarActivity.EXTRA_AVATAR);
         }
-        showAvatar();
+        setProfileAvatar();
     }
 
-    private void showAvatar() {
+    private void setProfileAvatar() {
         imgAvatar.setImageResource(avatar.getImageResId());
         lblAvatar.setText(avatar.getName());
+
+        imgAvatar.setTag(avatar.getImageResId());
+        lblAvatar.setTag(avatar.getName());
+    }
+
+    private void sendEmail() {
+        String email = txtEmail.getText().toString();
+        Intent sendEmailIntent = new Intent(Intent.ACTION_SENDTO, Uri.parse(String.format("mailto:%s", email)));
+        startActivity(sendEmailIntent);
+    }
+
+    private void callPhone() {
+        String phone = txtPhonenumber.getText().toString();
+        Intent callPhoneIntent = new Intent(Intent.ACTION_DIAL, Uri.parse(String.format("tel:%s", phone)));
+        startActivity(callPhoneIntent);
+    }
+
+    private void searchAddress() {
+        String address = txtAddress.getText().toString();
+        Intent searchAddressIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(String.format("geo:0,0?q=%s", address)));
+        startActivity(searchAddressIntent);
+    }
+
+    private void viewWeb() {
+        String web = txtWeb.getText().toString();
+        if (!web.startsWith("http://")) {
+            web = String.format("http://%s", web);
+        }
+        Intent viewWebIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(web));
+        startActivity(viewWebIntent);
     }
 
     /*private void changeImageAvatar() {
@@ -180,8 +228,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         imgAvatar.setTag(avatarRandom.getImageResId());
         lblAvatar.setTag(avatarRandom.getName());
     }*/
-
-
 
     private class GestorTextWatcher implements TextWatcher {
         @Override
@@ -200,7 +246,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void checkName() {
-        if(isValidName(txtName.getText().toString())) {
+        if(!isValidName(txtName.getText().toString())) {
             disabledField(txtName, lblName);
         } else {
             enabledField(txtName, lblName);
@@ -224,7 +270,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void checkAddress() {
-        if (isValidAddress(txtAddress.getText().toString())) {
+        if (!isValidAddress(txtAddress.getText().toString())) {
             disabledFieldImg(txtAddress, imgAddress, lblAddress);
         } else {
             enabledFieldImg(txtAddress, imgAddress, lblAddress);
@@ -232,7 +278,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void checkWeb() {
-        if (!ValidationUtils.isValidUrl(txtWeb.getText().toString())) {
+        if (!ValidationUtils.isValidUrl(txtWeb.getText().toString())
+                || TextUtils.isEmpty(txtWeb.getText().toString())) {
             disabledFieldImg(txtWeb, imgWeb, lblWeb);
         } else {
             enabledFieldImg(txtWeb, imgWeb, lblWeb);
@@ -265,7 +312,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private boolean validateAll() {
         checkAll();
-        View[] array = new View[]{txtName, txtEmail, txtPhonenumber, txtAddress, txtWeb};
+        View[] array = new View[]{lblName, lblEmail, lblPhonenumber, lblAddress, lblWeb};
         for (View view: array) {
             if(!view.isEnabled()) {
                 return false;
@@ -275,11 +322,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private boolean isValidName(String name) {
-        return TextUtils.isEmpty(name);
+        return !TextUtils.isEmpty(name);
     }
 
     private boolean isValidAddress(String address) {
-        return TextUtils.isEmpty(address);
+        return !TextUtils.isEmpty(address);
     }
 
     private void disabledFieldImg(EditText editText, ImageView imageView, TextView textView) {
