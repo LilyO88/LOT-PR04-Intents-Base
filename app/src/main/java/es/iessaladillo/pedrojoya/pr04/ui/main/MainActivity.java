@@ -57,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         initViews();
 
+        // BORRA LOS TODO
         // TODO
     }
 
@@ -148,6 +149,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void sendIntent(View v) {
             if (v.getId() == imgEmail.getId()) {
+                // COMPRUEBA SI HAY DATOS ANTES DE LANZAR EL INTENT IMPLÍCITO.
                 sendEmail();
             } else if (v.getId() == imgPhonenumber.getId()) {
                 callPhone();
@@ -196,6 +198,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void sendEmail() {
         String email = txtEmail.getText().toString();
         Intent sendEmailIntent = new Intent(Intent.ACTION_SENDTO, Uri.parse(String.format("mailto:%s", email)));
+        // SIEMPRE QUE HAGAS UN startActivity CON UN INTENT IMPLÍCITO HAZ UN try catch
+        // POR SI NO HAY ACTIVIDAD QUE PUEDA TRATARLO.
         startActivity(sendEmailIntent);
     }
 
@@ -219,6 +223,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Intent viewWebIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(web));
         startActivity(viewWebIntent);
     }
+
+    // CUANDO ENTREGUES CÓDIGO BORRA EL QUE YA NO TE SIRVE. TIENES COMMITS ANTERIORES POR SI
+    // QUIERES BUSCARLO MÁS ADELANTE.
 
     /*private void changeImageAvatar() {
         Avatar avatarRandom = database.getRandomAvatar();

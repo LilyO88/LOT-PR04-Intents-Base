@@ -18,6 +18,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <!-- REPASA SIEMPRE QUE NO QUEDEN LITERALES DE TAMAÑO -->
     <TextView
         android:id="@+id/lblAvatar"
         android:layout_width="wrap_content"
