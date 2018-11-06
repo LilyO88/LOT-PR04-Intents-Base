@@ -56,6 +56,9 @@ public class AvatarActivity extends AppCompatActivity {
         lblAvatar5 = ActivityCompat.requireViewById(this, R.id.lblAvatar5);
         lblAvatar6 = ActivityCompat.requireViewById(this, R.id.lblAvatar6);
 
+        // EN ESTE CASO NO VEO LA VENTAJA DE HACER UN LISTENER ÚNICO, YA QUE AL FINAL
+        // EN EL MÉTODO setAvatar() TIENES UN SWITCH PARA VER QUÉ AVATAR SE DEBE ENVIAR
+        // DEPENDIENDO DE SOBRE QUÉ VISTA SE HA PULSADO.
         /*onClickListener*/
         View.OnClickListener clickListener = v -> {
             buildResult(v);
